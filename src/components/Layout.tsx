@@ -45,9 +45,6 @@ export const Layout: React.FC<Props> = ({ children }) => {
   return (
     <StyledBodyContainer>
       <StyledNavbar>
-        <Link to="/">
-          <StyledNavbarButton>Home</StyledNavbarButton>
-        </Link>
         <Link to="/posts?page=1&postsPerPage=10">
           <StyledNavbarButton>Posts</StyledNavbarButton>
         </Link>
