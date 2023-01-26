@@ -3,7 +3,6 @@
 }
 
 html {
-  color-scheme: dark light;
 }
 
 img,
@@ -24,13 +23,13 @@ select {
 :root {
   --example: rgb(255, 0, 00);
 
-  --primary: #FFD3CC;
-  --primary-light: #FFEBE8;
+  --primary: #ffd3cc;
+  --primary-light: #ffebe8;
   --primary-dark: #ff8377;
 
   --secondary: #ab7d7a;
   --secondary-light: #d0b3b1;
-  --secondary-dark: #FFBFB5;
+  --secondary-dark: #ffbfb5;
 
   --grey-50: #fafafa;
   --grey-100: #f5f5f5;

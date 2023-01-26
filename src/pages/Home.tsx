@@ -2,7 +2,6 @@ import {
   StyledHeadingH1,
   StyledHeadingH2,
   StyledHeadingH3,
-  StyledSpan,
 } from "../components/SharedStyled";
 
 export const Home = () => {

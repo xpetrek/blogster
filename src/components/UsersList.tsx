@@ -5,13 +5,18 @@ import { getShortDescription } from "../hooks/useDescriptionShortener";
 import { Post, User } from "../utils/globaltypes";
 import { StyledHeadingH2, StyledParagraph } from "./SharedStyled";
 
+const StyledOverflow = styled.div`
+  overflow-x: auto;
+`;
+
 const StyledUsersContainer = styled.div`
   display: flex;
   flex-direction: column;
   flex-wrap: wrap;
   justify-content: space-around;
   align-items: center;
-  max-width: 1400px;
+  max-width: 60vw;
+  min-width: 40rem;
   margin: auto auto;
   gap: 0.1rem;
   padding: 2rem;
@@ -23,7 +28,7 @@ type StyledUserRowProps = {
 const StyledUserRow = styled.div<StyledUserRowProps>`
   display: flex;
   justify-content: space-between;
-  width: 45%;
+  width: 100%;
   min-width: 30rem;
   cursor: pointer;
   border: 1px solid black;
@@ -55,7 +60,7 @@ type Props = {
 };
 const UsersList = ({ usersQuery: postsQuery, handleClickPost }: Props) => {
   return (
-    <>
+    <StyledOverflow>
       <StyledUsersContainer>
         <StyledUserRow disabled={true}>
           <StyledDiv fontWeight="bold">Name</StyledDiv>
@@ -72,7 +77,7 @@ const UsersList = ({ usersQuery: postsQuery, handleClickPost }: Props) => {
               </StyledUserRow>
             ))}
       </StyledUsersContainer>
-    </>
+    </StyledOverflow>
   );
 };
 

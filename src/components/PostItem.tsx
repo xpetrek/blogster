@@ -8,7 +8,7 @@ import { StyledDecorativeHeadingH2, StyledParagraph } from "./SharedStyled";
 
 const StyledPostItem = styled.article`
   width: 45%;
-  min-width: 30rem;
+  min-width: 18rem;
   cursor: pointer;
   border: 1px solid black;
   border-radius: 1rem;
