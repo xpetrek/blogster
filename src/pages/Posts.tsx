@@ -1,6 +1,12 @@
 import { useQueryClient } from "@tanstack/react-query";
 import React, { useCallback, useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import styled from "styled-components";
+import {
+  StyledHeadingH1,
+  StyledHeadingH2,
+  StyledParagraph,
+} from "../components/CommonStyled";
 
 import {
   prefetchNextPageData,
@@ -88,43 +94,60 @@ export const Posts = () => {
   };
 
   return (
-    <div>
-      <h1>Blog posts</h1>
-      <div>
+    <>
+      <StyledHeadingH1>Blog posts</StyledHeadingH1>
+      <StyledPostsContainer>
         {postsQuery?.isLoading
           ? null
           : postsQuery?.data.map((post: Post, key: number) => (
-              <article key={key} onClick={() => handleClickPost(post.id)}>
-                <h3>{post.title}</h3>
-                <p>{getShortDescription(post.body)}</p>
-              </article>
+              <StyledPostItem
+                key={key}
+                onClick={() => handleClickPost(post.id)}
+              >
+                <StyledHeadingH2>{post.title}</StyledHeadingH2>
+                <StyledParagraph>
+                  {getShortDescription(post.body)}
+                </StyledParagraph>
+              </StyledPostItem>
             ))}
-      </div>
-      <div>
+      </StyledPostsContainer>
+      <StyledPageNavigation>
         <div>
           {(currentPage - 1) * postsPerPage}-{currentPage * postsPerPage}/
           {allPostsLen}
         </div>
-        <div>
-          {currentPage > 2 && <i onClick={() => handlePageChange(1)}>first</i>}
-          {currentPage > 1 && (
-            <i onClick={() => handlePageChange(currentPage - 1)}>
-              {currentPage - 1}
-            </i>
+        <StyledPageNumbers>
+          {currentPage > 2 && (
+            <StyledPageButton onClick={() => handlePageChange(1)}>
+              first
+            </StyledPageButton>
           )}
-          <i onClick={() => handlePageChange(currentPage)}>{currentPage}</i>
+          {currentPage > 1 && (
+            <StyledPageButton onClick={() => handlePageChange(currentPage - 1)}>
+              {currentPage - 1}
+            </StyledPageButton>
+          )}
+          <StyledPageButton
+            textDecoration="underline"
+            fontWeight="bold"
+            onClick={() => handlePageChange(currentPage)}
+          >
+            {currentPage}
+          </StyledPageButton>
           {currentPage < allPostsLen / postsPerPage && (
-            <i onClick={() => handlePageChange(currentPage + 1)}>
+            <StyledPageButton onClick={() => handlePageChange(currentPage + 1)}>
               {currentPage + 1}
-            </i>
+            </StyledPageButton>
           )}
           {currentPage + 1 < allPostsLen / postsPerPage && (
-            <i onClick={() => handlePageChange(allPostsLen / postsPerPage)}>
+            <StyledPageButton
+              onClick={() => handlePageChange(allPostsLen / postsPerPage)}
+            >
               last
-            </i>
+            </StyledPageButton>
           )}
-        </div>
-        <div>
+        </StyledPageNumbers>
+        <StyledPageNumbers>
           <select
             value={postsPerPage}
             onChange={(event) => handlePostsPerPage(event)}
@@ -133,22 +156,104 @@ export const Posts = () => {
             <option value={10}>10</option>
             <option value={20}>20</option>
           </select>
-        </div>
-      </div>
-      <div>
-        <button
+        </StyledPageNumbers>
+      </StyledPageNavigation>
+      <StyledButtonNavigation>
+        <StyledNavigationButton
           onClick={() => handlePageChange(currentPage - 1)}
           disabled={currentPage === 1}
         >
           Previous
-        </button>
-        <button
+        </StyledNavigationButton>
+        <StyledNavigationButton
           onClick={() => handlePageChange(currentPage + 1)}
           disabled={checkIfIsLastPage()}
         >
           Next
-        </button>
-      </div>
-    </div>
+        </StyledNavigationButton>
+      </StyledButtonNavigation>
+    </>
   );
 };
+
+const StyledPostsContainer = styled.div`
+  min-height: 75vh;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  gap: 1rem;
+  max-width: 1400px;
+  margin: auto auto;
+`;
+
+const StyledPageNavigation = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 70%;
+  min-height: 5vh;
+  max-width: 1400px;
+  margin: 20px auto;
+  border-top: 1px solid black;
+`;
+
+const StyledButtonNavigation = styled.div`
+  min-height: 5vh;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  gap: 1rem;
+  max-width: 1400px;
+  margin: auto auto;
+`;
+
+const StyledPostItem = styled.article`
+  width: 45%;
+  min-width: 30rem;
+  cursor: pointer;
+  border: 1px solid black;
+  border-radius: 1rem;
+  box-shadow: rgba(0, 0, 0, 0.8) 5px 5px 10px;
+  background-color: var(--primary);
+
+  &:hover {
+    text-decoration: underline;
+    background-color: var(--primary-dark);
+  }
+`;
+
+const StyledPageNumbers = styled.div`
+  display: flex;
+  font-size: 1.5rem;
+`;
+
+type StyledPageButtonProps = {
+  textDecoration?: "none" | "underline";
+  fontWeight?: "bold";
+};
+const StyledPageButton = styled.p((props: StyledPageButtonProps) => ({
+  display: "flex",
+  alignItems: "center",
+  cursor: "pointer",
+  padding: "5px",
+  textDecoration: props.textDecoration && props.textDecoration,
+  fontWeight: props.fontWeight && props.fontWeight,
+}));
+
+const StyledNavigationButton = styled.button({
+  minHeight: "5vh",
+  height: "100%",
+  width: "40%",
+  minWidth: "15rem",
+  cursor: "pointer",
+  borderRadius: "1rem",
+  boxShadow: "rgba(0, 0, 0, 0.8) 5px 5px 10px",
+  backgroundColor: "var(--primary)",
+
+  ":disabled": {
+    backgroundColor: "var(--grey-500)",
+  },
+  ":hover:enabled": {
+    backgroundColor: "var(--primary-dark)",
+  },
+});

@@ -9,13 +9,10 @@ export const Users = () => {
     <div>
       {usersQuery?.isLoading
         ? null
-        : usersQuery.data.map((post: User, key: number) => (
-            <Link to={`/users/${post.id}`}>
-              <div
-                key={key}
-                // onClick={() => handleClickPost(post.id)}
-              >
-                <h3>{post.name}</h3>
+        : usersQuery.data.map((user: User, key: number) => (
+            <Link to={`/users/${user.id}`}>
+              <div key={key}>
+                <h3>{user.name}</h3>
               </div>
             </Link>
           ))}
