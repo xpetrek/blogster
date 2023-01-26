@@ -1,5 +1,6 @@
 import React from "react";
 import styled from "styled-components";
+import { ROW_PER_PAGE } from "../utils/constants";
 
 const StyledPageNavigation = styled.div`
   display: flex;
@@ -8,8 +9,8 @@ const StyledPageNavigation = styled.div`
   width: 70%;
   min-height: 5vh;
   max-width: 1400px;
-  margin: 20px auto;
-  border-top: 1px solid black;
+  margin: 1rem auto 0 auto;
+  border-top: 2px solid black;
 `;
 
 const StyledPageNumbers = styled.div`
@@ -21,35 +22,33 @@ type StyledPageButtonProps = {
   textDecoration?: "none" | "underline";
   fontWeight?: "bold";
 };
-const StyledPageButton = styled.p((props: StyledPageButtonProps) => ({
-  display: "flex",
-  alignItems: "center",
-  cursor: "pointer",
-  padding: "5px",
-  textDecoration: props.textDecoration && props.textDecoration,
-  fontWeight: props.fontWeight && props.fontWeight,
-}));
+const StyledPageButton = styled.p<StyledPageButtonProps>`
+  cursor: pointer;
+  padding: 5px;
+  text-decoration: ${(props) => props.textDecoration || "none"};
+  font-weight: ${(props) => props.fontWeight || "400"};
+`;
 
 type Props = {
   currentPage: number;
   postsPerPage: number;
-  allPostsLen: number;
+  allItemsLen: number;
   handlePageChange: (page: number) => void;
-  handlePostsPerPage: (event: React.ChangeEvent<HTMLSelectElement>) => void;
+  handleItemsPerPage: (event: React.ChangeEvent<HTMLSelectElement>) => void;
 };
 
 const Pagination = ({
   currentPage,
   postsPerPage,
-  allPostsLen,
+  allItemsLen,
   handlePageChange,
-  handlePostsPerPage,
+  handleItemsPerPage,
 }: Props) => {
   return (
     <StyledPageNavigation>
       <div>
-        {(currentPage - 1) * postsPerPage}-{currentPage * postsPerPage}/
-        {allPostsLen}
+        {(currentPage - 1) * postsPerPage}-
+        {Math.min(allItemsLen, currentPage * postsPerPage)}/{allItemsLen}
       </div>
       <StyledPageNumbers>
         {currentPage > 2 && (
@@ -69,14 +68,16 @@ const Pagination = ({
         >
           {currentPage}
         </StyledPageButton>
-        {currentPage < allPostsLen / postsPerPage && (
+        {currentPage < Math.ceil(allItemsLen / postsPerPage) && (
           <StyledPageButton onClick={() => handlePageChange(currentPage + 1)}>
             {currentPage + 1}
           </StyledPageButton>
         )}
-        {currentPage + 1 < allPostsLen / postsPerPage && (
+        {currentPage + 1 < Math.ceil(allItemsLen / postsPerPage) && (
           <StyledPageButton
-            onClick={() => handlePageChange(allPostsLen / postsPerPage)}
+            onClick={() =>
+              handlePageChange(Math.ceil(allItemsLen / postsPerPage))
+            }
           >
             last
           </StyledPageButton>
@@ -85,11 +86,13 @@ const Pagination = ({
       <StyledPageNumbers>
         <select
           value={postsPerPage}
-          onChange={(event) => handlePostsPerPage(event)}
+          onChange={(event) => handleItemsPerPage(event)}
         >
-          <option value={6}>6</option>
-          <option value={10}>10</option>
-          <option value={20}>20</option>
+          {ROW_PER_PAGE.map((numberOfRows: number, key: number) => (
+            <option key={key} value={numberOfRows}>
+              {numberOfRows}
+            </option>
+          ))}
         </select>
       </StyledPageNumbers>
     </StyledPageNavigation>

@@ -4,7 +4,7 @@ import { Post } from "../utils/globaltypes";
 import { fetchComments } from "./useComments";
 import { fetchUser } from "./useUser";
 
-const fetchPost = (postId: number) => {
+const fetchPost = (postId: number): Promise<Post> => {
   return axios
     .get(`https://jsonplaceholder.typicode.com/posts/${postId}`)
     .then((res) => res.data);

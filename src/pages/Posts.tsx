@@ -1,22 +1,18 @@
 import { useQueryClient } from "@tanstack/react-query";
 import React, { useCallback, useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import styled from "styled-components";
-import {
-  StyledHeadingH1,
-  StyledHeadingH2,
-  StyledParagraph,
-} from "../components/CommonStyled";
+
+import { StyledHeadingH1 } from "../components/SharedStyled";
 import PageNavigation from "../components/PageNavigation";
 import Pagination from "../components/Pagination";
 import PostsList from "../components/PostsList";
-import { getShortDescription } from "../hooks/useDescriptionShortener";
-
 import {
   prefetchNextPageData,
   usePosts,
+  usePostsByUserPaginated,
   usePostsPaginated,
 } from "../hooks/usePosts";
+import { ROW_PER_PAGE } from "../utils/constants";
 import { Post } from "../utils/globaltypes";
 
 export const Posts = () => {
@@ -30,79 +26,119 @@ export const Posts = () => {
 
   const allPostsQuery = usePosts();
   const postsQuery = usePostsPaginated(currentPage, postsPerPage);
-
-  const handlePageChange = useCallback(
-    (page: number) => {
-      setCurrentPage(page);
-      const urlString = `/posts?page=${page}&postsPerPage=${postsPerPage}`;
-      if (userId > 0) urlString.concat(`&userId=${userId}`);
-      console.log(urlString);
-      navigate(urlString, {
-        replace: false,
-      });
-    },
-    [navigate]
+  const userPostsQuery = usePostsByUserPaginated(
+    userId,
+    currentPage,
+    postsPerPage
   );
 
   useEffect(() => {
-    const initialPage = Number.parseInt(searchParams.get("page") || "1");
-    const initialPostsPerPage = Number.parseInt(
-      searchParams.get("postsPerPage") || "10"
-    );
-    const initialUserId = Number.parseInt(searchParams.get("userId") || "-1");
-    if (
-      initialPostsPerPage === 6 ||
-      initialPostsPerPage === 10 ||
-      initialPostsPerPage === 20
-    )
-      setPostsPerPage(initialPostsPerPage);
-    else setPostsPerPage(10);
-    setCurrentPage(initialPage);
-    setUserId(initialUserId);
+    parseUrlParams();
   }, []);
 
   useEffect(() => {
-    setAllPostsLen(allPostsQuery.data?.length);
-  }, [allPostsQuery.data]);
+    parseUrlParams();
+    console.log("nastala zmena");
+  }, [searchParams]);
 
   useEffect(() => {
+    console.log("Toto sa neudeje");
+
+    if (isUserIdSpecified()) {
+      setAllPostsLen(
+        allPostsQuery.data?.filter((post: Post) => post?.userId === userId)
+          .length ?? 0
+      );
+    } else setAllPostsLen(allPostsQuery.data?.length ?? 0);
+  }, [allPostsQuery.data, userPostsQuery.data, userId]);
+
+  useEffect(() => {
+    if (isUserIdSpecified()) {
+      if (!userPostsQuery.isLoading && userPostsQuery.data?.length === 0)
+        handlePageChange(1);
+    } else {
+      if (!postsQuery.isLoading && postsQuery.data?.length === 0)
+        handlePageChange(1);
+    }
     const nextPageData = prefetchNextPageData(
       queryClient,
       currentPage,
       postsPerPage
     );
-  }, [postsQuery.data, currentPage, postsPerPage, queryClient]);
+  }, [
+    userPostsQuery.data,
+    postsQuery.data,
+    currentPage,
+    postsPerPage,
+    queryClient,
+  ]);
+
+  const parseUrlParams = () => {
+    const initialPage = Number.parseInt(searchParams.get("page") || "1");
+    const initialPostsPerPage = Number.parseInt(
+      searchParams.get("postsPerPage") || "10"
+    );
+    const initialUserId = Number.parseInt(searchParams.get("userId") || "-1");
+    setUserId(initialUserId);
+    if (ROW_PER_PAGE.includes(initialPostsPerPage))
+      setPostsPerPage(initialPostsPerPage);
+    else setPostsPerPage(10);
+    setCurrentPage(Number.isNaN(initialPage) ? 1 : initialPage);
+  };
 
   const handleClickPost = useCallback(
     (postId: number) => navigate(`/posts/${postId}`, { replace: false }),
     [navigate]
   );
 
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    navigate(getNewUrlString(page, postsPerPage), {
+      replace: false,
+    });
+  };
+
   const handlePostsPerPage = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setPostsPerPage(Number.parseInt(event.target.value));
     setCurrentPage(1);
-    navigate(
-      `/posts?page=${1}&postsPerPage=${Number.parseInt(event.target.value)}`,
-      {
-        replace: false,
-      }
-    );
+    navigate(getNewUrlString(1, Number.parseInt(event.target.value)), {
+      replace: false,
+    });
+  };
+
+  const getNewUrlString = (page: number, postsPerPage: number) => {
+    let urlString = `/posts?page=${page}&postsPerPage=${postsPerPage}`;
+    if (isUserIdSpecified())
+      urlString = `/posts?page=${page}&postsPerPage=${postsPerPage}&userId=${userId}`;
+    console.log(urlString);
+    return urlString;
   };
 
   const checkIfIsLastPage = () => {
     return allPostsLen - currentPage * postsPerPage <= 0;
   };
 
+  const isUserIdSpecified = () => {
+    return Number.parseInt(searchParams.get("userId") || "-1") > 0;
+  };
   return (
     <>
       <StyledHeadingH1>Blog posts</StyledHeadingH1>
-      <PostsList postsQuery={postsQuery} handleClickPost={handleClickPost} />
+      {isUserIdSpecified() && (
+        <PostsList
+          postsQuery={userPostsQuery}
+          handleClickPost={handleClickPost}
+        />
+      )}
+      {!isUserIdSpecified() && (
+        <PostsList postsQuery={postsQuery} handleClickPost={handleClickPost} />
+      )}
       <Pagination
         currentPage={currentPage}
         postsPerPage={postsPerPage}
-        allPostsLen={allPostsLen}
+        allItemsLen={allPostsLen}
         handlePageChange={handlePageChange}
-        handlePostsPerPage={handlePostsPerPage}
+        handleItemsPerPage={handlePostsPerPage}
       />
       <PageNavigation
         currentPage={currentPage}

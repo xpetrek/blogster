@@ -1,6 +1,5 @@
 import axios from "axios";
-import { useQuery, QueryClient, useQueryClient } from "@tanstack/react-query";
-import { Post } from "../utils/globaltypes";
+import { useQuery } from "@tanstack/react-query";
 
 const fetchComment = (commentId: number) => {
   return axios
@@ -9,6 +8,5 @@ const fetchComment = (commentId: number) => {
 }
 
 export const useComment = (commentId: number) => {
-  const queryClient = useQueryClient();
   return useQuery(["comments", commentId], () => fetchComment(commentId), {});
 }
