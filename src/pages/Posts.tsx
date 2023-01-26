@@ -38,12 +38,9 @@ export const Posts = () => {
 
   useEffect(() => {
     parseUrlParams();
-    console.log("nastala zmena");
   }, [searchParams]);
 
   useEffect(() => {
-    console.log("Toto sa neudeje");
-
     if (isUserIdSpecified()) {
       setAllPostsLen(
         allPostsQuery.data?.filter((post: Post) => post?.userId === userId)
@@ -110,7 +107,6 @@ export const Posts = () => {
     let urlString = `/posts?page=${page}&postsPerPage=${postsPerPage}`;
     if (isUserIdSpecified())
       urlString = `/posts?page=${page}&postsPerPage=${postsPerPage}&userId=${userId}`;
-    console.log(urlString);
     return urlString;
   };
 
